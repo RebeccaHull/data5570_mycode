@@ -1,80 +1,83 @@
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
-import { addTask, clearCompleted, fetchTasks, markCompletedNow } from "../store/tasksSlice";
-import TaskList from "../components/TaskList";
+// app/index.tsx
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'expo-router';
+import { fetchTasks, addTask, Task } from '../store/tasksSlice';
+import type { RootState, AppDispatch } from '../store';
 
-export default function Home() {
+export default function HomeScreen() {
   const dispatch = useDispatch<AppDispatch>();
-  const [title, setTitle] = useState("");
-  const [freq, setFreq] = useState("180"); // days
-  const [mountedAt, setMountedAt] = useState<string | null>(null);
-  const status = useSelector((s: RootState) => s.tasks.status);
+  const { items, loading, error } = useSelector(
+    (state: RootState) => state.tasks
+  );
+
+  const [title, setTitle] = useState('');
 
   useEffect(() => {
-    setMountedAt(new Date().toLocaleTimeString());
-    // Optional: load from your Django API (set your URL below)
-    // dispatch(fetchTasks("http://localhost:8000")).catch(() => {});
+    dispatch(fetchTasks());
   }, [dispatch]);
 
+  const handleAdd = () => {
+    if (!title.trim()) return;
+    dispatch(addTask(title.trim()));
+    setTitle('');
+  };
+
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 8 }}>Maintenance Tracker</Text>
-        {mountedAt && <Text style={{ marginBottom: 12 }}>Mounted at: {mountedAt} {status === "loading" ? "(loading…)" : ""}</Text>}
+    <View style={{ flex: 1, padding: 24, paddingTop: 48 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+        Maintenance Tasks
+      </Text>
 
-        <View style={{ gap: 8 }}>
-          <TextInput
-            placeholder="Task title (e.g., Oil change)"
-            value={title}
-            onChangeText={setTitle}
-            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
-          />
-          <TextInput
-            placeholder="Frequency (days)"
-            keyboardType="numeric"
-            value={freq}
-            onChangeText={setFreq}
-            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
-          />
-          <Pressable
-            onPress={() => {
-              const f = parseInt(freq, 10) || 30;
-              if (title.trim()) {
-                dispatch(addTask(title.trim(), f));
-                setTitle("");
-              }
+      <TextInput
+        placeholder="New task..."
+        value={title}
+        onChangeText={setTitle}
+        style={{
+          borderWidth: 1,
+          borderColor: '#ccc',
+          padding: 8,
+          borderRadius: 4,
+          marginBottom: 8,
+        }}
+      />
+      <Button title="Add Task" onPress={handleAdd} />
+
+      {loading && <ActivityIndicator style={{ marginTop: 12 }} />}
+      {error && (
+        <Text style={{ color: 'red', marginTop: 8 }}>Error: {error}</Text>
+      )}
+
+      <FlatList
+        style={{ marginTop: 16 }}
+        data={items}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              paddingVertical: 8,
+              borderBottomWidth: 1,
+              borderBottomColor: '#eee',
             }}
-            style={{ padding: 12, borderWidth: 1, borderColor: "#333", borderRadius: 8, alignItems: "center" }}
           >
-            <Text accessibilityRole="button">Add Task</Text>
-          </Pressable>
-        </View>
+            <Text style={{ fontSize: 16 }}>
+              {item.completed ? '✅ ' : '⬜ '} {item.title}
+            </Text>
+          </View>
+        )}
+      />
 
-        <View style={{ marginTop: 16 }}>
-          <TaskList />
-        </View>
-
-        <Pressable onPress={() => dispatch(clearCompleted())} style={{ marginTop: 8 }}>
-          <Text accessibilityRole="button">Clear Completed</Text>
-        </Pressable>
-
-        <Pressable onPress={() => {
-          // quick demo: mark the first task as completed now
-          const first = (global as any).__store?.getState?.().tasks.items[0];
-          if (first) dispatch(markCompletedNow(first.id));
-        }} style={{ marginTop: 8 }}>
-          <Text accessibilityRole="button">Mark first task completed now (demo)</Text>
-        </Pressable>
-
-        <View style={{ height: 24 }} />
-
-        <Link href="/details">
-          <Text style={{ textDecorationLine: "underline" }}>Go to Details</Text>
-        </Link>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Link href="/details" style={{ marginTop: 24 }}>
+        <Text style={{ color: 'blue' }}>See summary page →</Text>
+      </Link>
+    </View>
   );
 }

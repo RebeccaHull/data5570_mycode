@@ -1,30 +1,27 @@
-import { View, Text } from "react-native";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
-import { Link } from "expo-router";
+// app/details.tsx
+import React from 'react';
+import { View, Text } from 'react-native';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
+import { Link } from 'expo-router';
 
-function daysUntil(iso?: string) {
-  if (!iso) return "?";
-  const now = new Date();
-  const due = new Date(iso);
-  const diff = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  return diff;
-}
-
-export default function Details() {
-  const items = useSelector((s: RootState) => s.tasks.items);
+export default function DetailsScreen() {
+  const items = useSelector((state: RootState) => state.tasks.items);
   const total = items.length;
-  const completed = items.filter(t => t.isDone).length;
-  const dueSoon = items.filter(t => typeof daysUntil(t.nextDueISO) === "number" && (daysUntil(t.nextDueISO) as number) <= 7).length;
+  const completed = items.filter((t) => t.completed).length;
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 8 }}>Details</Text>
-      <Text>Total tasks: {total}</Text>
-      <Text>Completed (toggled): {completed}</Text>
-      <Text>Due within 7 days: {dueSoon}</Text>
+    <View style={{ flex: 1, padding: 24, paddingTop: 48 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+        Task Summary
+      </Text>
+      <Text style={{ fontSize: 16, marginBottom: 4 }}>Total tasks: {total}</Text>
+      <Text style={{ fontSize: 16, marginBottom: 16 }}>
+        Completed tasks: {completed}
+      </Text>
+
       <Link href="/">
-        <Text style={{ marginTop: 16, textDecorationLine: "underline" }}>Back to Home</Text>
+        <Text style={{ color: 'blue' }}>← Back to task list</Text>
       </Link>
     </View>
   );
