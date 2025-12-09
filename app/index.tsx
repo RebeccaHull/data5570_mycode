@@ -33,12 +33,18 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, padding: 24, paddingTop: 48 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 4 }}>
         Maintenance Tasks
       </Text>
 
+      {/* Subtitle / explanation */}
+      <Text style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>
+        Track routine car & house maintenance so you don’t forget things like
+        oil changes, filter replacements, or inspections.
+      </Text>
+
       <TextInput
-        placeholder="New task..."
+        placeholder="New task…"
         value={title}
         onChangeText={setTitle}
         style={{
@@ -52,18 +58,19 @@ export default function HomeScreen() {
       <Button title="Add Task" onPress={handleAdd} />
 
       {loading && <ActivityIndicator style={{ marginTop: 12 }} />}
+
       {error && (
         <Text style={{ color: 'red', marginTop: 8 }}>Error: {error}</Text>
       )}
 
-      <FlatList
+      <FlatList<Task>
         style={{ marginTop: 16 }}
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View
             style={{
-              paddingVertical: 8,
+              paddingVertical: 10,
               borderBottomWidth: 1,
               borderBottomColor: '#eee',
             }}
@@ -75,8 +82,17 @@ export default function HomeScreen() {
         )}
       />
 
+      {/* Empty state */}
+      {items.length === 0 && !loading && !error && (
+        <Text style={{ marginTop: 16, color: '#666' }}>
+          No tasks yet – add your first one above!
+        </Text>
+      )}
+
       <Link href="/details" style={{ marginTop: 24 }}>
-        <Text style={{ color: 'blue' }}>See summary page →</Text>
+        <Text style={{ color: 'blue', marginTop: 24 }}>
+          See summary page →
+        </Text>
       </Link>
     </View>
   );
