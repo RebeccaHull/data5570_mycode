@@ -1,6 +1,6 @@
 # Maintenance Tracker – Full Stack App (React + Expo + Django + AWS)
 
-This project is my final assignment for **DATA 5570 – Building Software with AI**.  
+This project is my final project for **DATA 5570 – Building Software with AI**.  
 It is a full stack maintenance-tracking application built with **Expo (React Native)** on the front end and a **Django REST API** hosted on **AWS EC2** on the back end. The app lets users add maintenance tasks (car or home), stores them in a database, and displays a clean summary across pages.
 
 This project continues the work started in Homework 4 and demonstrates frontend–backend communication, Redux middleware, persistence, and deployment skills.
